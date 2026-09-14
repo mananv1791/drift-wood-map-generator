@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drift Wood Map Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="control-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Drift Wood</p>
+          <h1>Hex Map</h1>
+        </div>
+        <div class="action-stack">
+          <button id="generateBtn" class="primary-btn" type="button">Generate Map</button>
+          <button id="randomizeBtn" class="secondary-btn" type="button">Randomize Seed</button>
+        </div>
+      </div>
+
+      <section class="control-group">
+        <h2>Output Size</h2>
+        <div class="field-grid two">
+          <label>
+            <span>Width</span>
+            <input id="outputWidth" type="number" min="640" max="4096" step="32" value="1400">
+          </label>
+          <label>
+            <span>Height</span>
+            <input id="outputHeight" type="number" min="480" max="4096" step="32" value="900">
+          </label>
+        </div>
+      </section>
+
+      <section class="control-group">
+        <h2>Map Layout</h2>
+        <label>
+          <span>Board Size</span>
+          <select id="boardSizePreset">
+            <option value="18x14" selected>Standard 18 x 14</option>
+            <option value="12x10">Small 12 x 10</option>
+            <option value="16x12">Medium 16 x 12</option>
+            <option value="20x16">Large 20 x 16</option>
+            <option value="24x18">Epic 24 x 18</option>
+            <option value="custom">Custom</option>
+          </select>
+        </label>
+        <div class="field-grid two">
+          <label>
+            <span>Tiles X</span>
+            <input id="tilesX" type="number" min="8" max="40" value="18">
+          </label>
+          <label>
+            <span>Tiles Y</span>
+            <input id="tilesY" type="number" min="8" max="40" value="14">
+          </label>
+        </div>
+        <label>
+          <span>River Placement</span>
+          <select id="riverPlacement">
+            <option value="top_to_bottom">Top to Bottom</option>
+            <option value="bottom_to_top">Bottom to Top</option>
+            <option value="left_to_right">Left to Right</option>
+            <option value="left_to_top_curve">Left to Top Curve</option>
+            <option value="middle_pond">Middle Pond</option>
+            <option value="lake">Lake</option>
+            <option value="land_around_river">Land Around River</option>
+          </select>
+        </label>
+        <label>
+          <span>Planet Theme</span>
+          <select id="planetTheme">
+            <option value="earth" selected>Earthlike</option>
+            <option value="desert">Desert</option>
+            <option value="frozen">Frozen</option>
+            <option value="volcanic">Volcanic</option>
+            <option value="alien">Alien</option>
+          </select>
+        </label>
+        <label>
+          <span>Scale</span>
+          <input id="scale" type="range" min="0.7" max="1.45" step="0.01" value="1">
+        </label>
+        <label>
+          <span>Map Offset X</span>
+          <input id="offsetX" type="range" min="-1" max="1" step="0.01" value="0">
+        </label>
+        <label>
+          <span>Map Offset Y</span>
+          <input id="offsetY" type="range" min="-1" max="1" step="0.01" value="0">
+        </label>
+        <label>
+          <span>Relief</span>
+          <input id="relief" type="range" min="0" max="1" step="0.01" value="0.56">
+        </label>
+        <label>
+          <span>Height</span>
+          <input id="height" type="range" min="0.15" max="1.2" step="0.01" value="0.68">
+        </label>
+        <label>
+          <span>Max Height</span>
+          <input id="maxHeight" type="range" min="0.35" max="1.3" step="0.01" value="1">
+        </label>
+        <label>
+          <span>Min Height</span>
+          <input id="minHeight" type="range" min="0" max="0.6" step="0.01" value="0.08">
+        </label>
+      </section>
+
+      <section class="control-group">
+        <h2>Terrain Counts</h2>
+        <label>
+          <span>Terrain Mix</span>
+          <select id="terrainPreset">
+            <option value="balanced" selected>Balanced Board</option>
+            <option value="riverlands">Riverlands</option>
+            <option value="archipelago">Archipelago</option>
+            <option value="highlands">Highlands</option>
+            <option value="woodlands">Woodlands</option>
+            <option value="custom">Custom Counts</option>
+          </select>
+        </label>
+        <div class="field-grid two">
+          <label>
+            <span>Water</span>
+            <input id="countWater" type="number" min="0" max="1600" value="54">
+          </label>
+          <label>
+            <span>Sand</span>
+            <input id="countSand" type="number" min="0" max="1600" value="32">
+          </label>
+          <label>
+            <span>Plain</span>
+            <input id="countPlain" type="number" min="0" max="1600" value="78">
+          </label>
+          <label>
+            <span>Forest</span>
+            <input id="countForest" type="number" min="0" max="1600" value="42">
+          </label>
+          <label>
+            <span>Stone Ground</span>
+            <input id="countStone" type="number" min="0" max="1600" value="28">
+          </label>
+          <label>
+            <span>Stone Mountain</span>
+            <input id="countMountain" type="number" min="0" max="1600" value="18">
+          </label>
+        </div>
+        <p id="countSummary" class="count-summary">Terrain total 252 / 252 tiles</p>
+        <p class="control-hint">Pick a terrain mix for quick setup, or switch to Custom Counts and tune each tile type manually.</p>
+      </section>
+
+      <section class="control-group">
+        <h2>Map Features</h2>
+        <div class="toggle-list">
+          <label><span>Village</span><input id="featureVillage" type="checkbox" checked></label>
+          <label><span>Forest</span><input id="featureForest" type="checkbox" checked></label>
+          <label><span>Reefs</span><input id="featureReefs" type="checkbox" checked></label>
+          <label><span>Boar</span><input id="featureBoar" type="checkbox"></label>
+          <label><span>Frozen Water</span><input id="featureFrozenWater" type="checkbox"></label>
+          <label><span>Mountain Erosion</span><input id="featureMountainErosion" type="checkbox"></label>
+        </div>
+      </section>
+
+      <section class="control-group">
+        <h2>Layers</h2>
+        <div class="color-grid">
+          <label><span>Sand</span><input id="colorSand" type="color" value="#dfca72"></label>
+          <label><span>Plain</span><input id="colorPlain" type="color" value="#6fca49"></label>
+          <label><span>Forest</span><input id="colorForest" type="color" value="#399326"></label>
+          <label><span>Deep Forest</span><input id="colorDeepForest" type="color" value="#214f17"></label>
+          <label><span>Mountain Stone</span><input id="colorStone" type="color" value="#718176"></label>
+          <label><span>Mountain Rock</span><input id="colorRock" type="color" value="#a5b3af"></label>
+        </div>
+      </section>
+
+      <section class="control-group">
+        <h2>Water</h2>
+        <div class="color-grid">
+          <label><span>Deep Water</span><input id="colorDeepWater" type="color" value="#235f95"></label>
+          <label><span>Foam</span><input id="colorFoam" type="color" value="#cdeef7"></label>
+        </div>
+        <label>
+          <span>Water Aspect</span>
+          <input id="waterAspect" type="range" min="0.5" max="1" step="0.01" value="0.76">
+        </label>
+      </section>
+
+      <section class="control-group">
+        <h2>Reefs</h2>
+        <label>
+          <span>Amount</span>
+          <input id="reefAmount" type="range" min="0" max="1" step="0.01" value="0.44">
+        </label>
+        <label>
+          <span>Size</span>
+          <input id="reefSize" type="range" min="0.2" max="1" step="0.01" value="0.48">
+        </label>
+      </section>
+    </aside>
+
+    <main class="preview-panel">
+      <div class="preview-sticky">
+        <div class="hero-copy">
+          <p class="eyebrow">Procedural Board Setup</p>
+          <h2>Minimal controls, gaussian land shaping, and a playable river route for Drift Wood.</h2>
+          <p>
+            Each tile is rendered as a 50px hex with layered height, water, reefs, stones, wooden logs,
+            start, and end markers. Adjust the layout on the left and randomize until the board feels right.
+          </p>
+        </div>
+
+        <div class="canvas-frame">
+          <div class="preview-status" id="previewStatus">Waiting to generate. Start the local server with <code>python3 server.py</code>.</div>
+          <img id="mapImage" alt="Generated procedural board map">
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

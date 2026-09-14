@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drift Wood Conquest Playthrough</title>
+  <style>
+    :root {
+      --font-sans: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      --color-background-page: #141616;
+      --color-background-primary: #1d2121;
+      --color-background-secondary: #262b2b;
+      --color-background-warning: rgba(186, 117, 23, 0.16);
+      --color-background-info: rgba(24, 95, 165, 0.16);
+      --color-background-danger: rgba(153, 60, 29, 0.16);
+      --color-text-primary: #edf2f2;
+      --color-text-secondary: #b8c4c4;
+      --color-text-warning: #f4cb8b;
+      --color-text-info: #a7d3ff;
+      --color-text-danger: #f0b4a4;
+      --color-border-secondary: rgba(255, 255, 255, 0.14);
+      --color-border-tertiary: rgba(255, 255, 255, 0.08);
+      --color-border-warning: rgba(244, 203, 139, 0.4);
+      --color-border-danger: rgba(240, 180, 164, 0.4);
+      --border-radius-md: 12px;
+      --border-radius-lg: 18px;
+      --shadow: 0 20px 48px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background:
+        radial-gradient(circle at top left, rgba(90, 170, 60, 0.12), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(46, 111, 173, 0.14), transparent 28%),
+        var(--color-background-page);
+      color: var(--color-text-primary);
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      color: var(--color-text-primary);
+    }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .sub {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav button {
+      padding: 8px 14px;
+      font-size: 13px;
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      cursor: pointer;
+    }
+    .nav button:hover { background: var(--color-background-secondary); }
+    .nav button:disabled { opacity: 0.35; cursor: default; }
+    .turn-badge {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      min-width: 72px;
+      text-align: center;
+    }
+    .board-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 16px;
+    }
+    .map-card,
+    .event-card,
+    .bugs-section {
+      background: linear-gradient(180deg, rgba(29, 33, 33, 0.96), rgba(24, 28, 28, 0.98));
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow);
+    }
+    .map-card,
+    .event-card,
+    .bugs-section {
+      padding: 14px;
+    }
+    .map-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      margin-bottom: 10px;
+    }
+    canvas#hexmap {
+      display: block;
+      width: 100%;
+      height: 340px;
+      border-radius: var(--border-radius-md);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.08)),
+        var(--color-background-secondary);
+    }
+    .side {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ec-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-secondary);
+      margin-bottom: 6px;
+    }
+    .ec-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .ec-body {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+    .players {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .player-card {
+      background: var(--color-background-secondary);
+      border-radius: var(--border-radius-md);
+      padding: 10px;
+    }
+    .pc-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .pc-name {
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .pc-role {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+    }
+    .stat-val {
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .pill {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      border: 1px solid var(--color-border-secondary);
+    }
+    .phase-tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      border: 1px solid var(--color-border-secondary);
+      color: var(--color-text-secondary);
+      margin-bottom: 8px;
+    }
+    .alert {
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: var(--border-radius-md);
+      border-left: 3px solid;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+    .alert.warn {
+      border-color: #ba7517;
+      background: var(--color-background-warning);
+      color: var(--color-text-warning);
+    }
+    .alert.info {
+      border-color: #185fa5;
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+    }
+    .bugs-section { margin-top: 16px; }
+    .bs-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    table.bugs {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    table.bugs th {
+      text-align: left;
+      padding: 8px;
+      font-weight: 700;
+      background: var(--color-background-secondary);
+      color: var(--color-text-secondary);
+      border-bottom: 1px solid var(--color-border-tertiary);
+    }
+    table.bugs td {
+      padding: 8px;
+      border-bottom: 1px solid var(--color-border-tertiary);
+      color: var(--color-text-primary);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    table.bugs tr:last-child td { border-bottom: none; }
+    .sev {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 99px;
+    }
+    .sev.hi {
+      background: var(--color-background-danger);
+      color: var(--color-text-danger);
+      border: 1px solid var(--color-border-danger);
+    }
+    .sev.md {
+      background: var(--color-background-warning);
+      color: var(--color-text-warning);
+      border: 1px solid var(--color-border-warning);
+    }
+    .sev.lo {
+      background: var(--color-background-secondary);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border-secondary);
+    }
+    @media (max-width: 900px) {
+      .board-wrap { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      body { padding: 14px; }
+      .players { grid-template-columns: 1fr; }
+      .top-bar { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2 class="sr-only">Drift Wood Conquest two-player playthrough with rules audit</h2>
+
+    <div class="top-bar">
+      <div>
+        <div class="title">Drift Wood: Conquer the Hexagonal</div>
+        <div class="sub">2-player playthrough | Seed 482901 | Standard Conquest (18 hexes wins)</div>
+      </div>
+      <div class="nav">
+        <button id="btn-prev" disabled>&larr; Prev</button>
+        <span class="turn-badge" id="turn-lbl">Turn 1/12</span>
+        <button id="btn-next">Next &rarr;</button>
+      </div>
+    </div>
+
+    <div class="board-wrap">
+      <div class="map-card">
+        <div class="map-title">Live board state - hexes claimed shown in player color</div>
+        <canvas id="hexmap" width="620" height="340"></canvas>
+      </div>
+      <div class="side">
+        <div class="event-card" id="ec"></div>
+        <div class="players" id="players"></div>
+      </div>
+    </div>
+
+    <div class="bugs-section">
+      <div class="bs-title">Rules issues caught during playthrough</div>
+      <table class="bugs">
+        <thead>
+          <tr>
+            <th>Turn</th>
+            <th>Issue</th>
+            <th>Rule ref</th>
+            <th>Severity</th>
+          </tr>
+        </thead>
+        <tbody id="bug-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const COLS = 18;
+    const ROWS = 14;
+    const HEX_R = 16;
+    const HW = Math.sqrt(3) * HEX_R;
+    const HV = HEX_R * 1.5;
+
+    const BIOMES = {
+      deep_water: { col: "#1d4e89" },
+      water: { col: "#2e6fad" },
+      sand: { col: "#c8a84b" },
+      plain: { col: "#5aaa3c" },
+      forest: { col: "#2e7a1e" },
+      deep_forest: { col: "#1a4c0e" },
+      stone: { col: "#607068" },
+      rock: { col: "#8ca09a" }
+    };
+
+    function seededRand(seed) {
+      let s = seed % 2147483647;
+      return function () {
+        s = (s * 16807) % 2147483647;
+        return (s - 1) / 2147483646;
+      };
+    }
+
+    function buildMap(seed) {
+      const rng = seededRand(seed);
+      const tiles = [];
+      const blobs = Array.from({ length: 7 }, () => ({
+        x: 0.18 + rng() * 0.64,
+        y: 0.14 + rng() * 0.72,
+        sigma: 0.10 + rng() * 0.20,
+        amp: 0.45 + rng() * 0.75
+      }));
+      const riverAnchors = [];
+      let rc = 0.18 + rng() * 0.64;
+
+      for (let r = 0; r < ROWS; r++) {
+        rc += (rng() - 0.5) * 0.18;
+        rc = Math.max(0.2, Math.min(0.8, rc));
+        riverAnchors.push(rc);
+      }
+
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          const nx = col / (COLS - 1);
+          const ny = row / (ROWS - 1);
+          let island = 0;
+
+          for (const b of blobs) {
+            const dx = nx - b.x;
+            const dy = ny - b.y;
+            island += b.amp * Math.exp(-(dx * dx + dy * dy) / (2 * b.sigma * b.sigma));
+          }
+
+          island = Math.min(1, island / 2.8);
+          const edge = 1 - Math.min(1, Math.hypot(nx - 0.5, ny - 0.5) / 0.78) ** 1.6;
+          const riverDist = Math.abs(nx - riverAnchors[row]);
+          const riverStr = Math.max(0, 1 - riverDist / 0.12);
+          const elev = Math.min(1, Math.max(-0.2, island * 0.75 + edge * 0.68 - riverStr * 0.88));
+
+          let biome = "plain";
+          if (elev < 0.02 || riverStr > 0.58) {
+            biome = elev < -0.08 || riverStr > 0.80 ? "deep_water" : "water";
+          } else if (elev < 0.16) {
+            biome = "sand";
+          } else if (elev > 0.90) {
+            biome = "rock";
+          } else if (elev > 0.72) {
+            biome = "stone";
+          } else {
+            const m = rng();
+            if (m > 0.76 && elev > 0.38) biome = m > 0.88 ? "deep_forest" : "forest";
+          }
+
+          tiles.push({ col, row, biome, elev, riverStr, owner: -1 });
+        }
+      }
+
+      return tiles;
+    }
+
+    function hexCenter(col, row, ox, oy) {
+      const x = ox + col * HW + (row % 2) * (HW * 0.5) + HW * 0.75;
+      const y = oy + row * HV + HEX_R;
+      return [x, y];
+    }
+
+    function drawHex(ctx, cx, cy, r, fill, stroke) {
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const a = Math.PI / 180 * (60 * i - 30);
+        const px = cx + r * Math.cos(a);
+        const py = cy + r * Math.sin(a);
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.strokeStyle = stroke || "rgba(0,0,0,0.18)";
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+
+    const P_COLORS = [["#185FA5", "#B5D4F4"], ["#993C1D", "#F5C4B3"]];
+    const P_NAMES = ["Aldric", "Brenna"];
+    const P_AVATARS = ["A", "B"];
+
+    const turns = [
+      {
+        label: "Opening Gambit",
+        phase: "Command + Action",
+        desc: "Both leaders deploy. Aldric rolls Gold Die -> 4 (Standard, 3 CP). Brenna rolls -> 5 (Inspiration, 4 CP + 1 card). Aldric claims 2 hexes on the river sandbar near Start. Brenna claims 2 coastal plain hexes and moves her leader 2 hexes east.",
+        p: [
+          { hexes: 3, troops: 6, cp: 3, cards: 3, leader: [2, 6], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }] },
+          { hexes: 3, troops: 7, cp: 4, cards: 4, leader: [14, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }] }
+        ],
+        flag: null
+      },
+      {
+        label: "First Strike",
+        phase: "Action + Combat",
+        desc: "Aldric rolls 4 CP. Moves toward central forest. Brenna rolls 6 (Blitz, 5 CP - Claim disabled). Brenna attacks Aldric's river hex: Red Die -> 3, Defender 1d6 -> 4. Forest +1 Defense. Tie -> Defender wins. Attack fails.",
+        p: [
+          { hexes: 3, troops: 6, cp: 4, cards: 3, leader: [4, 6], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }] },
+          { hexes: 4, troops: 7, cp: 5, cards: 5, leader: [13, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }] }
+        ],
+        flag: { type: "warn", msg: "Blitz (6) disables Claim actions - Brenna correctly abstained from claiming this turn. Rule followed." }
+      },
+      {
+        label: "River Crossing",
+        phase: "Build + Move",
+        desc: "Aldric spends 1 CP + 1 Resource to Build Crossing on a log tile, securing river passage. Brenna fortifies: Bulwark Die -> High Ground on her coastal hex. Brenna draws 1 card for controlling a village-adjacent zone.",
+        p: [
+          { hexes: 4, troops: 6, cp: 3, cards: 3, leader: [5, 7], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }, { c: 5, r: 7 }] },
+          { hexes: 5, troops: 7, cp: 3, cards: 6, leader: [12, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }, { c: 12, r: 8 }] }
+        ],
+        flag: { type: "info", msg: "Rulebook grants +1 card OR +1 resource for controlling a village - not both. Brenna took only the card draw." }
+      },
+      {
+        label: "Nature Phase: Overgrowth",
+        phase: "Nature Die",
+        desc: "Green Nature Die rolled after all players -> result: Overgrowth. Forest Defense increases to +2 for the rest of this round. Aldric is deep in forest territory, so this boosts his defense significantly.",
+        p: [
+          { hexes: 4, troops: 6, cp: 3, cards: 3, leader: [5, 7], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }, { c: 5, r: 7 }] },
+          { hexes: 5, troops: 7, cp: 3, cards: 6, leader: [12, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }, { c: 12, r: 8 }] }
+        ],
+        flag: { type: "warn", msg: "Bug found: the rulebook says Nature Phase triggers once after all players take their turns (Section 7). But Section 5 Turn Structure lists no Nature Phase step. The rules never clarify who rolls the Nature Die or when exactly. Ambiguity: is it per-round or per-turn?" }
+      },
+      {
+        label: "Mountain Push",
+        phase: "Action + Claim",
+        desc: "Aldric rolls 3 CP. Pushes into stone hex - costs 3 CP to enter, so all CP are spent on movement. No claim possible. Brenna rolls Inspiration (4 CP + 1 card). Claims 3 new hexes expanding her eastern territory.",
+        p: [
+          { hexes: 4, troops: 6, cp: 0, cards: 3, leader: [5, 6], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }, { c: 5, r: 7 }] },
+          { hexes: 8, troops: 7, cp: 1, cards: 7, leader: [11, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }, { c: 12, r: 8 }, { c: 11, r: 8 }, { c: 10, r: 7 }, { c: 10, r: 8 }] }
+        ],
+        flag: { type: "warn", msg: "Bug: Move action states move a unit up to 2 hexes (1 CP). Stone entry costs 3 MP in Drift Wood. The Conquest rulebook uses CP, not MP, but never defines a CP cost-per-terrain table. Terrain movement cost system is undefined for Conquest mode. Drift Wood costs were used as a proxy." }
+      },
+      {
+        label: "Recruit and Fortify",
+        phase: "Recruit + Fortify",
+        desc: "Aldric retreats to village, recruits 1 troop, and fortifies. Bulwark Die -> Barricade (+1 next defense roll). Brenna recruits at her starting zone and claims 1 more hex, reaching 9 hexes.",
+        p: [
+          { hexes: 5, troops: 7, cp: 3, cards: 4, leader: [3, 7], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }, { c: 5, r: 7 }, { c: 3, r: 7 }] },
+          { hexes: 9, troops: 8, cp: 2, cards: 7, leader: [10, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }, { c: 12, r: 8 }, { c: 11, r: 8 }, { c: 10, r: 7 }, { c: 10, r: 8 }, { c: 9, r: 7 }] }
+        ],
+        flag: null
+      },
+      {
+        label: "Tactic Card: Flanking",
+        phase: "Card Play",
+        desc: "Aldric plays Tactic Card Flanking Strike (bonus to assault if attacking from 2 sides). Launches a coordinated attack on Brenna's western hex at col 9. Red Die -> 6 (Critical). Hex cleared, Aldric moves in for free.",
+        p: [
+          { hexes: 6, troops: 7, cp: 2, cards: 3, leader: [9, 7], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }, { c: 5, r: 7 }, { c: 3, r: 7 }, { c: 9, r: 7 }] },
+          { hexes: 8, troops: 8, cp: 3, cards: 7, leader: [10, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }, { c: 12, r: 8 }, { c: 11, r: 8 }, { c: 10, r: 7 }, { c: 10, r: 8 }] }
+        ],
+        flag: { type: "warn", msg: "Bug: On a Critical hit (6), the rulebook says instantly clears hex; move in for free. It does not specify what happens to the defending troop - is it destroyed, returned to supply, or lost permanently? Troop fate on Critical is undefined." }
+      },
+      {
+        label: "Counter-Spike Trap",
+        phase: "Fortify + Combat",
+        desc: "Brenna fortifies her central hex: Bulwark Die -> Counter-Spikes. If attacked, the attacker loses 1 troop. Aldric presses the attack anyway. Red Die -> 2. Defender 1d6 -> 5. Brenna wins, Aldric loses 1 troop and 1 extra from Counter-Spikes.",
+        p: [
+          { hexes: 6, troops: 5, cp: 1, cards: 3, leader: [9, 7], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }, { c: 5, r: 7 }, { c: 3, r: 7 }, { c: 9, r: 7 }] },
+          { hexes: 8, troops: 8, cp: 3, cards: 8, leader: [10, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }, { c: 12, r: 8 }, { c: 11, r: 8 }, { c: 10, r: 7 }, { c: 10, r: 8 }] }
+        ],
+        flag: { type: "info", msg: "Counter-Spikes correctly applied: attacker lost 1 troop on failed attack." }
+      },
+      {
+        label: "Objective Completion",
+        phase: "End Phase",
+        desc: "End Phase check: Brenna reveals Secret Objective - Control 3 Forest hexes. She has 2, so it is not complete. Aldric's objective is to control a hex on both sides of the river. Achieved. Aldric gains 2 VP.",
+        p: [
+          { hexes: 6, troops: 5, cp: 2, cards: 3, leader: [9, 7], vp: 2, claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }, { c: 5, r: 7 }, { c: 3, r: 7 }, { c: 9, r: 7 }] },
+          { hexes: 8, troops: 8, cp: 3, cards: 8, vp: 0, leader: [10, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }, { c: 12, r: 8 }, { c: 11, r: 8 }, { c: 10, r: 7 }, { c: 10, r: 8 }] }
+        ],
+        flag: { type: "warn", msg: "Bug: Objectives grant 2 VP each. The rulebook says win by completing 3 objectives, but never states whether objective VP also counts toward the conquest threshold. VP and threshold conditions are treated as separate win conditions with no cross-compatibility rule." }
+      },
+      {
+        label: "Mid-Game Surge",
+        phase: "Command + Claim",
+        desc: "Brenna rolls Blitz (6, 5 CP, Claim disabled again). She spends all CP on moves and combat instead. Attacks Aldric's forest hex: Red Die -> 5 vs Aldric's 1d6 -> 3. Forest +2 (Overgrowth still active?). 5 vs 5 -> tie, so Defender wins.",
+        p: [
+          { hexes: 7, troops: 5, cp: 2, cards: 4, leader: [8, 7], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }, { c: 5, r: 7 }, { c: 3, r: 7 }, { c: 9, r: 7 }, { c: 8, r: 7 }] },
+          { hexes: 8, troops: 8, cp: 0, cards: 8, leader: [11, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }, { c: 12, r: 8 }, { c: 11, r: 8 }, { c: 10, r: 7 }, { c: 10, r: 8 }] }
+        ],
+        flag: { type: "warn", msg: "Bug: Overgrowth (Forest +2 Defense) was triggered by the Nature Die in Turn 4. The rulebook never states how long Nature Die effects last. Effect duration is unspecified." }
+      },
+      {
+        label: "Final Push - Brenna Expands",
+        phase: "Claim Blitz",
+        desc: "Brenna rolls Standard (3 CP). Claims 2 more hexes, pushing to 10. Aldric claims 2, reaching 9. Conquest threshold is 18, so both players are about halfway there. No winner yet.",
+        p: [
+          { hexes: 9, troops: 5, cp: 1, cards: 4, leader: [7, 7], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }, { c: 5, r: 7 }, { c: 3, r: 7 }, { c: 9, r: 7 }, { c: 8, r: 7 }, { c: 7, r: 7 }, { c: 6, r: 7 }] },
+          { hexes: 10, troops: 8, cp: 1, cards: 9, leader: [11, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }, { c: 12, r: 8 }, { c: 11, r: 8 }, { c: 10, r: 7 }, { c: 10, r: 8 }, { c: 11, r: 9 }, { c: 12, r: 9 }] }
+        ],
+        flag: null
+      },
+      {
+        label: "Round Limit Reached - VP Tally",
+        phase: "End Game",
+        desc: "Both players agree to invoke the 6-round Campaign Control limit. Final VP calculation: Aldric 9 + 2 objective VP = 11. Brenna 10 + 0 objective VP + 1 bonus chain = 11. Tied. The rulebook does not specify a tiebreaker, so a draw is declared.",
+        p: [
+          { hexes: 9, troops: 5, cp: 0, cards: 4, vp: 11, leader: [7, 7], claimed: [{ c: 2, r: 6 }, { c: 3, r: 6 }, { c: 4, r: 6 }, { c: 5, r: 7 }, { c: 3, r: 7 }, { c: 9, r: 7 }, { c: 8, r: 7 }, { c: 7, r: 7 }, { c: 6, r: 7 }] },
+          { hexes: 10, troops: 8, cp: 0, cards: 9, vp: 11, leader: [11, 7], claimed: [{ c: 14, r: 7 }, { c: 15, r: 7 }, { c: 13, r: 7 }, { c: 15, r: 8 }, { c: 12, r: 8 }, { c: 11, r: 8 }, { c: 10, r: 7 }, { c: 10, r: 8 }, { c: 11, r: 9 }, { c: 12, r: 9 }] }
+        ],
+        flag: { type: "warn", msg: "Bug: No tiebreaker rule exists in the rulebook. With identical VP, there is no defined second criterion such as most hexes or most troops. The game ends in a draw with no resolution path." }
+      }
+    ];
+
+    const bugs = [
+      { turn: 4, issue: "Nature Phase timing is ambiguous. Section 7 says after all players take their turns, but Section 5 Turn Structure has no Nature Phase step listed. It is unclear when or how often the Green Die is rolled.", rule: "Section 5 Turn Structure, Section 7 Nature Phase", sev: "hi" },
+      { turn: 5, issue: "No terrain movement cost table appears in the Conquest rules. The game references terrain modifiers for combat but never assigns CP costs for moving into different biomes. This conflicts with the map generator's MP costs.", rule: "Section 5 Action Phase (Move)", sev: "hi" },
+      { turn: 7, issue: "On a Critical hit (Red Die = 6), the defending troop's fate is undefined. The rule only says move in for free but does not state whether the defender loses a troop, all troops, or is merely displaced.", rule: "Section 6 Combat (Assault Die faces)", sev: "hi" },
+      { turn: 9, issue: "Objective VP and conquest-threshold victory are listed as separate win conditions, but no rule clarifies whether VP earned from objectives also counts toward the hex threshold or if they are independent paths.", rule: "Section 4 Goal to Win", sev: "md" },
+      { turn: 10, issue: "Nature Die effect duration is never stated. Overgrowth, Flood, and Erosion all have no end condition. It is unclear whether they last one round, the rest of the game, or until the die is rerolled.", rule: "Section 7 Nature Phase", sev: "hi" },
+      { turn: 12, issue: "No tiebreaker rule. When VP is equal at campaign end, no secondary criterion is defined such as hexes controlled, troops remaining, or leader survival. A tie with no resolution path is a critical oversight.", rule: "Section 4 Victory Points", sev: "hi" },
+      { turn: 2, issue: "Blitz result (6 on Gold Die) disables Claim actions, but the rule does not clarify whether that also disables Build Crossing, which functions like a special claim. The restriction scope is narrow but ambiguous.", rule: "Section 5 Command Phase (Gold Die)", sev: "lo" },
+      { turn: 3, issue: "Village or stronghold bonus says draw 1 extra card OR gain 1 resource. The word or implies exclusive choice, but the rule never specifies that the player must declare the choice before drawing.", rule: "Section 5 Draw Phase", sev: "lo" }
+    ];
+
+    const tiles = buildMap(482901);
+
+    function getOX(cw) {
+      return cw * 0.5 - (COLS - 1) * HW * 0.5 - HW * 0.75;
+    }
+
+    function getOY(ch) {
+      return ch * 0.5 - (ROWS - 1) * HV * 0.5 - HEX_R;
+    }
+
+    function renderMap(turnIdx) {
+      const canvas = document.getElementById("hexmap");
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const ox = getOX(W);
+      const oy = getOY(H);
+      const t = turns[turnIdx];
+      const claimedMap = {};
+
+      if (t.p[0].claimed) {
+        for (const h of t.p[0].claimed) claimedMap[h.c + "," + h.r] = 0;
+      }
+      if (t.p[1].claimed) {
+        for (const h of t.p[1].claimed) claimedMap[h.c + "," + h.r] = 1;
+      }
+
+      for (const tile of tiles) {
+        const [cx, cy] = hexCenter(tile.col, tile.row, ox, oy);
+        const key = tile.col + "," + tile.row;
+        if (claimedMap[key] !== undefined) {
+          const pi = claimedMap[key];
+          drawHex(ctx, cx, cy, HEX_R - 1, P_COLORS[pi][1], P_COLORS[pi][0]);
+        } else {
+          drawHex(ctx, cx, cy, HEX_R - 1, BIOMES[tile.biome] ? BIOMES[tile.biome].col : "#888", "rgba(0,0,0,0.20)");
+        }
+      }
+
+      for (let pi = 0; pi < 2; pi++) {
+        const ld = t.p[pi].leader;
+        if (!ld) continue;
+        const [lc, lr] = ld;
+        const [cx, cy] = hexCenter(lc, lr, ox, oy);
+        ctx.beginPath();
+        ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+        ctx.fillStyle = P_COLORS[pi][0];
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 8px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(P_AVATARS[pi], cx, cy);
+      }
+
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.font = "10px sans-serif";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillText("Seed 482901", 6, 6);
+    }
+
+    function renderEvent(turnIdx) {
+      const t = turns[turnIdx];
+      let html = '<div class="ec-label">Turn ' + (turnIdx + 1) + " of " + turns.length + "</div>";
+      html += '<span class="phase-tag">' + t.phase + "</span>";
+      html += '<div class="ec-title">' + t.label + "</div>";
+      html += '<div class="ec-body">' + t.desc + "</div>";
+      if (t.flag) html += '<div class="alert ' + t.flag.type + '">' + t.flag.msg + "</div>";
+      document.getElementById("ec").innerHTML = html;
+    }
+
+    function renderPlayers(turnIdx) {
+      const t = turns[turnIdx];
+      let html = "";
+      for (let pi = 0; pi < 2; pi++) {
+        const p = t.p[pi];
+        html +=
+          '<div class="player-card">' +
+            '<div class="pc-header">' +
+              '<div class="avatar" style="background:' + P_COLORS[pi][1] + ";color:" + P_COLORS[pi][0] + '">' + P_AVATARS[pi] + "</div>" +
+              '<div><div class="pc-name">' + P_NAMES[pi] + '</div><div class="pc-role">Player ' + (pi + 1) + "</div></div>" +
+            "</div>" +
+            '<div class="stat-row"><span>Hexes</span><span class="stat-val">' + p.hexes + "</span></div>" +
+            '<div class="stat-row"><span>Troops</span><span class="stat-val">' + p.troops + "</span></div>" +
+            '<div class="stat-row"><span>Cards</span><span class="stat-val">' + p.cards + "</span></div>" +
+            (p.vp !== undefined ? '<div class="stat-row"><span>VP</span><span class="stat-val">' + p.vp + "</span></div>" : "") +
+            '<div class="pills"><span class="pill" style="color:' + P_COLORS[pi][0] + ";border-color:" + P_COLORS[pi][0] + '">' + p.hexes + "/18 hexes</span></div>" +
+          "</div>";
+      }
+      document.getElementById("players").innerHTML = html;
+    }
+
+    function renderBugs() {
+      const tb = document.getElementById("bug-tbody");
+      tb.innerHTML = bugs.map(function (b) {
+        const severity = b.sev === "hi" ? "High" : b.sev === "md" ? "Medium" : "Low";
+        return '<tr>' +
+          "<td>" + b.turn + "</td>" +
+          "<td>" + b.issue + "</td>" +
+          '<td style="font-size:11px;color:var(--color-text-secondary)">' + b.rule + "</td>" +
+          '<td><span class="sev ' + b.sev + '">' + severity + "</span></td>" +
+        "</tr>";
+      }).join("");
+    }
+
+    let cur = 0;
+
+    function render() {
+      renderMap(cur);
+      renderEvent(cur);
+      renderPlayers(cur);
+      document.getElementById("turn-lbl").textContent = "Turn " + (cur + 1) + "/" + turns.length;
+      document.getElementById("btn-prev").disabled = cur === 0;
+      document.getElementById("btn-next").disabled = cur === turns.length - 1;
+    }
+
+    document.getElementById("btn-prev").onclick = function () {
+      if (cur > 0) {
+        cur--;
+        render();
+      }
+    };
+
+    document.getElementById("btn-next").onclick = function () {
+      if (cur < turns.length - 1) {
+        cur++;
+        render();
+      }
+    };
+
+    renderBugs();
+    render();
+  </script>
+</body>
+</html>
